@@ -25,20 +25,19 @@ a corresponding [Digital Ocean Community Tutorial](http://bit.ly/1AGUZkq).
   service.  Users are encourage to replace `example` with a descriptive name of
   their choosing.
 
-        OVPN_DATA="ovpn-data-example"
+        OVPN_DATA=$HOME/.trasba/openvpn/data
 
 * Initialize the `$OVPN_DATA` container that will hold the configuration files
   and certificates.  The container will prompt for a passphrase to protect the
   private key used by the newly generated certificate authority.
 
-        docker volume create --name $OVPN_DATA
         docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm trasba/openvpn:amd64 ovpn_genconfig -u udp://VPN.SERVERNAME.COM
         docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it trasba/openvpn:amd64 ovpn_initpki
 
 * Start OpenVPN server process
 
-        docker run -v $OVPN_DATA:/etc/openvpn -d -p 1194:1194/udp --cap-add=NET_ADMIN trasba/openvpn:amd64
-
+        docker run --privileged --name openvpn -v $OVPN_DATA:/etc/openvpn -d -p 1194:1194/udp --cap-add=NET_ADMIN trasba/openvpn:amd64
+        
 * Generate a client certificate without a passphrase
 
         docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it trasba/openvpn:amd64 easyrsa build-client-full CLIENTNAME nopass
